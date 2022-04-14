@@ -56,16 +56,18 @@ To print a character to the terminal, you have to pass a bit more information to
 
 ### Reading from the Disk
 
-Reading from the disk can be a little challenging. We need to tell the BIOS (1) the disk read command, (2) where we want to read from on the disk, (3) where we want the data to go in memory, and (4) how much data to read. For (1), the disk read command 0x02 goes in register `AH`. For (2), we need to specify a sector on the disk to read. The disk is addressed in cylinder, head, and sector numbers. We want to read from cylinder 0, sector 2 head 0. The first hard disk number is 0x80. For (3), we want to put the stage 1 bootloader immediately after the MBR in memory. The MBR lives at 0x7C00 and takes up 512 bytes (0x7C00 + 512 = 0x7C00 + 0x800 = 0x7E00). For (4), we need to read as much data as is taken up by the stage 1 bootloader---50 sectors should be good. Finally, call the BIOS with `INT 0x13` to initiate the disk read.
+Reading from the disk can be a little challenging. We need to tell the BIOS (1) the disk read command, (2) where we want to read from on the disk, (3) where we want the data to go in memory, and (4) how much data to read. For (1), the disk read command 0x02 goes in register `AH`. For (2), we need to specify a sector on the disk to read. The disk is addressed in cylinder, head, and sector numbers. We want to read from cylinder 0, sector 2 head 0. The first hard disk number is 0x80. For (3), we want to put the stage 1 bootloader immediately after the MBR in memory. The MBR lives at 0x7C00 and takes up 512 bytes (0x7C00 + 512 = 0x7C00 + 0x800 = 0x7E00). The data will be written to `ES:BX`. For (4), we need to read as much data as is taken up by the stage 1 bootloader---50 sectors should be good. Finally, call the BIOS with `INT 0x13` to initiate the disk read.
 
-| Register  | Meaning               |
-|-----------|-----------------------|
-| AH        | Command: 0x02         |
-| AL        | Num sectors to read   |
-| CH        | Low 8 bits of cyl num |
-| CL        | Sector num            |
-| DH        | Head num              |
-| DL        | Drive num             |
+| Register  | Meaning                              |
+|-----------|--------------------------------------|
+| AH        | Command: 0x02                        |
+| AL        | Num sectors to read                  |
+| ES        | Segment where data should be written |
+| BX        | Offset into ES to write data         |
+| CH        | Low 8 bits of cyl num                |
+| CL        | Sector num                           |
+| DH        | Head num                             |
+| DL        | Drive num                            |
 
 
 
