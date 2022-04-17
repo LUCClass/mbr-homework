@@ -27,7 +27,7 @@ debug:
 		echo $$n ; \
 	done; \
 	qemu-system-i386 -hda mbr.img -S -gdb tcp::$(PORT) &
-	gdb mbr.elf -x gdb_init_real_mode.txt -ex 'target remote localhost:$(PORT)' -ex 'break *0x7c00' -ex 'continue'
+	gdb mbr.elf -x gdb_init_real_mode.txt -ex 'target remote localhost:$(PORT)' -ex 'break *0x7c00' -ex 'continue' && killall qemu-system-i386
 
 dirs:
 	mkdir -p obj
