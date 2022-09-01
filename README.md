@@ -98,3 +98,110 @@ If your program correctly loads the sector from the hard disk and runs it, it wi
 To debug with `gdb` on `qemu` you can do
     
     make debug
+
+
+## 8086 Assembly Reference
+
+## Registers
+
+| Register  | Meaning                              |
+|-----------|--------------------------------------|
+| AX        | 16-bit Integer Register              |
+| BX        | 16-bit Integer Register              |
+| CX        | 16-bit Integer Register              |
+| DX        | 16-bit Integer Register              |
+| SI        | 16-bit Pointer Register              |
+| DI        | 16-bit Pointer Register              |
+| BP        | Base Pointer (same as Frame Pointer) |
+| SP        | Stack Pointer                        |
+
+
+There are two kinds of registers in the 8086: integer registers and pointer registers. Integer registers AX, BX, CX, and DX hold 16-bit integers. Pointer registers SI and DI hold addresses.
+
+#### Example: set the value of register AX to 0x1234
+
+    mov ax,0x1234
+
+#### Example: Declare a variable and set its value
+
+    [BITS 16]
+    boot:
+        mov si,var      ; Get the address of var into register SI
+        mov word [si],1 ; change the variable's value to 1
+        hlt             ; Halt the CPU
+    var:                ; declare a variable called `var'
+        dw 0            ; Initial value of the variable is 0 (dw means declare word)
+        
+    times 510-($-$$) db 0 ; Skip to end of boot sector
+    db 0x55 ; Magic Numbers
+    db 0xaa ; To make disk bootable
+
+#### Example: Calling Functions
+
+The `call` and `ret` instructions are used to call and return from functions. `call` pushes the return address onto the stack and jumps to the specified function. `ret` pops the return address off of the stack and jumps back to that address.
+
+    [BITS 16]
+    boot:
+        call func       ; Call function func
+        hlt             ; Halt the CPU
+        
+    func:
+        push bp         ; Prologue
+        mov bp,sp
+        ; ... do some stuff ...
+        pop bp          ; Epilogue
+        ret
+    times 510-($-$$) db 0 ; Skip to end of boot sector
+    db 0x55 ; Magic Numbers
+    db 0xaa ; To make disk bootable
+
+
+#### Example: Passing Parameters to functions
+    [BITS 16]
+    boot:
+        mov ax,5        ; Initialize AX to 5
+        push ax         ; Pass parameter on the stack
+        call add1       ; Call function add1
+        add sp,2        ; Clean up the stack
+        hlt             ; Halt the CPU
+    ; |----------------|
+    ; | Parameter      | <- BP+4
+    ; |----------------|
+    ; | Return Address | <- BP+2
+    ; |----------------|
+    ; | Caller's BP    | <- SP,BP
+    ; |----------------|
+    add1:
+        push bp         ; Prologue
+        mov bp,sp
+        mov ax,[bp+4]   ; Get input parameter off of stack
+        add ax,1        ; Add 1 to input parameter. Return value in AX
+        pop bp          ; Epilogue
+        ret
+    times 510-($-$$) db 0 ; Skip to end of boot sector
+    db 0x55 ; Magic Numbers
+    db 0xaa ; To make disk bootable
+
+
+#### Example: Loops
+
+In this exmple, we will write a loop to count the number of characters in a string. SI points to the beginning of the string. BX is the index into the string, and AL
+
+    [BITS 16] 
+    boot:
+        mov si,str
+        mov bx,0        ; Initialize character count to 0
+    loop:
+        mov al,[si+bx]  ; Get a character from the string into AL
+        cmp al,0        ; Compare to NULL terminator
+        je loop_done    ; If we found a NULL terminator, we're done.
+        add bx,1        ; Otherwise increment character count
+        jmp loop        ; And go get another char
+    loop_done:
+        hlt 
+    str:
+        db "testing",0
+
+    times 510-($-$$) db 0 ; Skip to end of boot sector
+    db 0x55 ; Magic Numbers
+    db 0xaa ; To make disk bootable
