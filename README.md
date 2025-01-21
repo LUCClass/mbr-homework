@@ -11,6 +11,12 @@ Your job is to write the following functions:
 1. `putStr` calls the BIOS to print a NULL-terminated string.
 2. `readSector` calls the BIOS to load sectors from the hard drive.
 
+## Prereqs
+
+You'll need a few programs to make this work. You can install them on Ubuntu with the command below:
+
+    user@system:~ sudo apt install nasm qemu-system-x86 make 
+
 ## BIOS Operations
 
 The PC BIOS provides a bunch of low-level functions to make your job easier. It can print stuff to the screen, get input from the keyboard, read and write to the disks, play sounds, draw pixels on the screen, and lots of other stuff. These low-level functions are called *drivers*, and the details of how they're implemented are generally hardware-dependent---that is, they are different on different machines. For a complete list of BIOS functionality, search google for *Ralph Brown's Interrupt List*.
